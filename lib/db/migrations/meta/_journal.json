@@ -1,1 +1,20 @@
-{"version":"7","dialect":"postgresql","entries":[{"idx":0,"version":"7","when":1719997972944,"tag":"0000_yielding_bloodaxe","breakpoints":true}]}
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1755366475023,
+      "tag": "0000_wonderful_prima",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755368747481,
+      "tag": "0001_aberrant_hellfire_club",
+      "breakpoints": true
+    }
+  ]
+}

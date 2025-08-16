@@ -1,6 +1,6 @@
 {
-  "id": "1c7a519e-8299-4937-9dba-3fb84996dcb9",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "fe80e9f8-71f7-429a-957e-40671c9f452a",
+  "prevId": "1c7a519e-8299-4937-9dba-3fb84996dcb9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -184,8 +184,8 @@
         }
       },
       "indexes": {
-        "songIndex": {
-          "name": "songIndex",
+        "songTitleIdx": {
+          "name": "songTitleIdx",
           "columns": [
             {
               "expression": "title",
@@ -197,6 +197,114 @@
           "isUnique": false,
           "concurrently": false,
           "method": "btree",
+          "with": {}
+        },
+        "songArtistIdx": {
+          "name": "songArtistIdx",
+          "columns": [
+            {
+              "expression": "artist",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "songDifficultyIdx": {
+          "name": "songDifficultyIdx",
+          "columns": [
+            {
+              "expression": "difficulty",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "songGenreIdx": {
+          "name": "songGenreIdx",
+          "columns": [
+            {
+              "expression": "genre",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "songDecadeIdx": {
+          "name": "songDecadeIdx",
+          "columns": [
+            {
+              "expression": "decade",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "songTitleTrgm": {
+          "name": "songTitleTrgm",
+          "columns": [
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "songArtistTrgm": {
+          "name": "songArtistTrgm",
+          "columns": [
+            {
+              "expression": "artist",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "songMoodTrgm": {
+          "name": "songMoodTrgm",
+          "columns": [
+            {
+              "expression": "mood",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
           "with": {}
         }
       },

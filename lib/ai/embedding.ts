@@ -1,7 +1,7 @@
 import { embed, embedMany } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { cosineDistance, desc, gt, sql } from "drizzle-orm";
-import { embeddings } from "../db/schema/embeddings";
+import { embeddings } from "../db/schema";
 import { db } from "../db";
 
 const embeddingModel = openai.embedding("text-embedding-ada-002");

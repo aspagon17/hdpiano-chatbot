@@ -4,10 +4,10 @@ import {
   NewResourceParams,
   insertResourceSchema,
   resources,
-} from "@/lib/db/schema/resources";
+  embeddings as embeddingsTable 
+} from "@/lib/db/schema";
 import { generateEmbeddings } from "../ai/embedding";
 import { db } from "../db";
-import { embeddings as embeddingsTable } from "../db/schema/embeddings";
 
 export const createResource = async (input: NewResourceParams) => {
   try {

@@ -1,6 +1,9 @@
 import { createResource } from "@/lib/actions/resources";
+import { searchSongsByFilters } from "@/lib/db/queries";
 import { findRelevantContent } from "@/lib/ai/embedding";
 import { openai } from "@ai-sdk/openai";
+import { anthropic } from '@ai-sdk/anthropic';
+
 import { generateObject, streamText, tool } from "ai";
 import { z } from "zod";
 
@@ -16,12 +19,12 @@ export async function POST(req: Request) {
     system: `You are a helpful assistant acting as the users' second brain.
     Use tools on every request.
     Be sure to getInformation from your knowledge base before answering any questions.
-    If the user presents infromation about themselves, use the addResource tool to store it.
+    If the user presents information about themselves, use the addResource tool to store it.
     If a response requires multiple tools, call one tool after another without responding to the user.
     If a response requires information from an additional tool to generate a response, call the appropriate tools in order before responding to the user.
     ONLY respond to questions using information from tool calls.
     if no relevant information is found in the tool calls, respond, "Sorry, I don't know."
-    Be sure to adhere to any instructions in tool calls ie. if they say to responsd like "...", do exactly that.
+    Be sure to adhere to any instructions in tool calls ie. if they say to respond like "...", do exactly that.
     If the relevant information is not a direct match to the users prompt, you can be creative in deducing the answer.
     Keep responses short and concise. Answer in a single sentence where possible.
     If you are unsure, use the getInformation tool and you can use common sense to reason based on the information you do have.
@@ -82,6 +85,77 @@ export async function POST(req: Request) {
                     3 similar questions that could help answer the user's query`,
           });
           return object.questions;
+        },
+      }),
+      generateSqlQueryForSongSearch: tool({
+        description: `Convert an open-ended question into structured song filters. Do NOT return SQL.`,
+        parameters: z.object({
+          query: z.string().describe("the user's question, e.g. 'easy beginner songs'"),
+        }),
+        execute: async ({ query }) => {
+          const { object } = await generateObject({
+            model: openai("gpt-4o"),
+            system: `You map natural language to structured filters for a songs catalog.
+Return fields only from this set: [title, artist, difficulty, genre, decade, mood, key, tempo_bpm].
+Use match 'equals' for exact category matches (e.g., difficulty, genre, decade). Use 'contains' for substring text search (e.g., title, artist, mood).
+Map beginner/easy -> difficulty=EASY, medium -> MEDIUM, hard/advanced -> HARD.
+If unspecified, return a reasonable default like difficulty inferred from 'beginner/easy/medium/hard'. Keep filters under 4 items.`,
+            schema: z.object({
+              filters: z
+                .array(
+                  z.object({
+                    field: z.enum([
+                      "title",
+                      "artist",
+                      "difficulty",
+                      "genre",
+                      "decade",
+                      "mood",
+                      "key",
+                      "tempo_bpm",
+                    ]),
+                    match: z.enum(["equals", "contains"]).default("equals"),
+                    value: z.string().min(1),
+                  }),
+                )
+                .max(4),
+              sortBy: z
+                .enum(["title", "artist", "decade", "tempo_bpm"]) // optional
+                .optional(),
+              sortOrder: z.enum(["asc", "desc"]).optional(),
+              limit: z.number().int().min(1).max(50).optional(),
+            }),
+            prompt: `User question: ${query}`,
+          });
+          return object;
+        },
+      }),
+      searchSongs: tool({
+        description: `Execute a songs search using structured filters. Use this after generating filters.`,
+        parameters: z.object({
+          filters: z.array(
+            z.object({
+              field: z.enum([
+                "title",
+                "artist",
+                "difficulty",
+                "genre",
+                "decade",
+                "mood",
+                "key",
+                "tempo_bpm",
+              ]),
+              match: z.enum(["equals", "contains"]).default("equals"),
+              value: z.string(),
+            }),
+          ),
+          sortBy: z.enum(["title", "artist", "decade", "tempo_bpm"]).optional(),
+          sortOrder: z.enum(["asc", "desc"]).optional(),
+          limit: z.number().int().min(1).max(50).optional(),
+        }),
+        execute: async ({ filters, sortBy, sortOrder, limit }) => {
+          const rows = await searchSongsByFilters({ filters, sortBy, sortOrder, limit });
+          return rows;
         },
       }),
     },
